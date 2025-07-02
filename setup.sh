@@ -54,8 +54,8 @@ sleep 15
 echo "⚛️  Installing frontend dependencies..."
 cd frontend
 npm install -q
-echo "🚀 Starting React development server..."
-npm start -q &
+echo "🚀 Starting Vite development server..."
+npm run dev -q &
 FRONTEND_PID=$!
 cd ..
 

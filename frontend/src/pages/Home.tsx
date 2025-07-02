@@ -5,24 +5,29 @@ import { Todo, TodoFormData } from '../types/Todo';
 import todoService from '../services/todoService';
 
 const Home = () => {
+  console.log('Home component rendering...');
+  
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
+    console.log('Home component mounted, loading todos...');
     loadTodos();
   }, []);
 
   const loadTodos = async () => {
     try {
+      console.log('Starting to load todos...');
       setLoading(true);
       const data = await todoService.getAllTodos();
+      console.log('Todos loaded successfully:', data);
       setTodos(data);
       setError(null);
     } catch (err) {
-      setError('Failed to load todos. Please try again.');
       console.error('Error loading todos:', err);
+      setError('Failed to load todos. Please try again.');
     } finally {
       setLoading(false);
     }

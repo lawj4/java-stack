@@ -1,6 +1,6 @@
 # Full-Stack Todo List Application
 
-A modern todo list application built with TypeScript React frontend, Java Spring Boot backend, and PostgreSQL database.
+A modern todo list application built with TypeScript React frontend (Vite), Java Spring Boot backend, and PostgreSQL database.
 
 ## 🚀 Features
 
@@ -8,17 +8,21 @@ A modern todo list application built with TypeScript React frontend, Java Spring
 - **Real-time Updates**: Instant feedback for all CRUD operations
 - **Filtering**: View all, active, or completed todos
 - **Edit Mode**: In-place editing of todo items
+- **Navigation**: Multi-page application with React Router
 - **RESTful API**: Complete backend API with Spring Boot
 - **Database**: PostgreSQL with JPA/Hibernate
 - **Type Safety**: Full TypeScript support
+- **Fast Development**: Vite-powered frontend with hot reload
+- **Docker Support**: Containerized deployment
 
 ## 🏗️ Architecture
 
 ```
-├── frontend/          # React TypeScript application
+├── frontend/          # React TypeScript + Vite application
 ├── backend/           # Spring Boot Java application
 ├── database/          # PostgreSQL setup scripts
-└── docker-compose.yml # Database container setup
+├── docker-compose.yml # Complete application setup
+└── start-docker.sh    # Docker startup script
 ```
 
 ## 📋 Prerequisites
@@ -27,15 +31,37 @@ A modern todo list application built with TypeScript React frontend, Java Spring
 - **Node.js 16+** (for React frontend)
 - **PostgreSQL 15+** (or Docker for containerized setup)
 - **Maven** (for Java dependencies)
+- **Docker & Docker Compose** (for containerized deployment)
 
-## 🛠️ Setup Instructions
+## 🛠️ Quick Start
 
-### 1. Database Setup
+### Option 1: Docker (Recommended)
 
-#### Option A: Using Docker (Recommended)
 ```bash
-# Start PostgreSQL with Docker Compose
+# Clone the repository
+git clone <repository-url>
+cd java-stack
+
+# Start all services with Docker
+./start-docker.sh
+
+# Or manually:
 docker-compose up -d
+
+# Access the application:
+# Frontend: http://localhost:3001
+# Backend API: http://localhost:8080
+# Database: localhost:5432
+```
+
+### Option 2: Local Development
+
+#### 1. Database Setup
+
+**Using Docker (Easiest):**
+```bash
+# Start only the database
+docker-compose up -d postgres
 
 # The database will be available at:
 # Host: localhost
@@ -45,18 +71,24 @@ docker-compose up -d
 # Password: password
 ```
 
-#### Option B: Local PostgreSQL
+**Using Local PostgreSQL:**
 ```bash
-# Install PostgreSQL and create database
-psql -U postgres
-CREATE DATABASE tododb;
+# Install PostgreSQL via Homebrew (macOS)
+brew install postgresql
+brew services start postgresql
+
+# Create database and user
+psql postgres
+CREATE USER postgres WITH PASSWORD 'password';
+ALTER USER postgres WITH SUPERUSER;
+CREATE DATABASE tododb OWNER postgres;
 \q
 
 # Run the initialization script
 psql -U postgres -d tododb -f database/init.sql
 ```
 
-### 2. Backend Setup
+#### 2. Backend Setup
 
 ```bash
 # Navigate to backend directory
@@ -69,10 +101,9 @@ mvn clean install
 mvn spring-boot:run
 
 # The API will be available at: http://localhost:8080
-# API Documentation: http://localhost:8080/api/todos
 ```
 
-### 3. Frontend Setup
+#### 3. Frontend Setup
 
 ```bash
 # Navigate to frontend directory
@@ -81,10 +112,10 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start the development server
-npm start
+# Start the development server (Vite)
+npm run dev
 
-# The application will be available at: http://localhost:3000
+# The application will be available at: http://localhost:5173
 ```
 
 ## 🎯 API Endpoints
@@ -114,26 +145,38 @@ backend/
 │   │   └── TodoRepository.java        # Data access layer
 │   └── model/
 │       └── Todo.java                  # Entity class
-└── src/main/resources/
-    └── application.properties         # Configuration
+├── src/main/resources/
+│   └── application.properties         # Configuration
+├── Dockerfile                         # Backend container
+└── pom.xml                           # Maven dependencies
 ```
 
-### Frontend (React TypeScript)
+### Frontend (React TypeScript + Vite)
 ```
 frontend/
 ├── src/
 │   ├── components/
+│   │   ├── Navigation.tsx             # Top navigation bar
 │   │   ├── TodoForm.tsx              # Add/Edit todo form
 │   │   ├── TodoItem.tsx              # Individual todo item
 │   │   └── TodoList.tsx              # Todo list with filtering
+│   ├── pages/
+│   │   ├── Home.tsx                  # Main todo page
+│   │   ├── About.tsx                 # About page
+│   │   └── Contact.tsx               # Contact page
 │   ├── services/
 │   │   └── todoService.ts            # API service layer
 │   ├── types/
 │   │   └── Todo.ts                   # TypeScript interfaces
 │   ├── App.tsx                       # Main application component
 │   └── index.tsx                     # Application entry point
-└── public/
-    └── index.html                    # HTML template
+├── public/                           # Static assets
+├── index.html                        # HTML template (Vite)
+├── vite.config.ts                    # Vite configuration
+├── tailwind.config.js                # Tailwind CSS config
+├── tsconfig.json                     # TypeScript config
+├── package.json                      # Dependencies
+└── Dockerfile                        # Frontend container
 ```
 
 ## 🎨 UI Features
@@ -144,6 +187,8 @@ frontend/
 - **Error Handling**: User-friendly error messages
 - **Smooth Animations**: Hover effects and transitions
 - **Accessibility**: Proper ARIA labels and keyboard navigation
+- **Multi-page Navigation**: Home, About, and Contact pages
+- **Real-time Updates**: Instant feedback for all operations
 
 ## 🔧 Configuration
 
@@ -157,19 +202,67 @@ spring.datasource.password=password
 
 # Server settings
 server.port=8080
+
+# CORS configuration
+spring.web.cors.allowed-origins=http://localhost:3001,http://localhost:5173
 ```
 
 ### Frontend Configuration
-Edit `frontend/src/services/todoService.ts`:
+The frontend uses Vite's proxy configuration in `vite.config.ts`:
 ```typescript
-const API_BASE_URL = 'http://localhost:8080/api/todos';
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
+  }
+})
 ```
 
-## 🚀 Deployment
+## 🐳 Docker Deployment
+
+### Complete Application Stack
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild and start
+docker-compose up --build -d
+```
+
+### Individual Services
+```bash
+# Start only database
+docker-compose up -d postgres
+
+# Start only backend
+docker-compose up -d backend
+
+# Start only frontend
+docker-compose up -d frontend
+```
+
+### Docker Services
+- **Frontend**: React app on port 3001
+- **Backend**: Spring Boot API on port 8080
+- **Database**: PostgreSQL on port 5432
+
+## 🚀 Production Deployment
 
 ### Backend Deployment
 ```bash
 # Build JAR file
+cd backend
 mvn clean package
 
 # Run JAR file
@@ -179,11 +272,17 @@ java -jar target/todo-backend-0.0.1-SNAPSHOT.jar
 ### Frontend Deployment
 ```bash
 # Build production version
+cd frontend
 npm run build
 
-# Serve static files (requires a web server)
-npx serve -s build
+# Serve static files
+npx serve -s dist
 ```
+
+### Hosting Recommendations
+- **Frontend**: Vercel, Netlify, or GitHub Pages
+- **Backend**: Railway, Render, or Heroku
+- **Database**: Supabase, Neon, or Railway PostgreSQL
 
 ## 🧪 Testing
 
@@ -199,49 +298,99 @@ cd frontend
 npm test
 ```
 
-## 📝 Development
+## 🔍 Troubleshooting
 
-### Adding New Features
-1. **Backend**: Add new endpoints in `TodoController.java`
-2. **Frontend**: Create new components in `src/components/`
-3. **Database**: Update entity classes and run migrations
+### Common Issues
 
-### Code Style
-- **Backend**: Follow Spring Boot conventions
-- **Frontend**: Use TypeScript strict mode
-- **Database**: Use snake_case for column names
+#### 1. Port Already in Use
+```bash
+# Find process using port 8080
+lsof -i :8080
+
+# Kill the process
+kill -9 <PID>
+```
+
+#### 2. Database Connection Issues
+```bash
+# Check if PostgreSQL is running
+brew services list | grep postgresql
+
+# Start PostgreSQL
+brew services start postgresql
+
+# Or using Docker
+docker-compose up -d postgres
+```
+
+#### 3. Frontend Build Issues
+```bash
+# Clean and reinstall dependencies
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### 4. Docker Issues
+```bash
+# Check Docker status
+docker --version
+docker-compose --version
+
+# Restart Docker Desktop (macOS)
+# Or restart Docker service (Linux)
+sudo systemctl restart docker
+```
+
+#### 5. Maven Issues
+```bash
+# Clean Maven cache
+cd backend
+mvn clean
+
+# Update dependencies
+mvn dependency:resolve
+```
+
+### Development Commands
+
+```bash
+# Start development environment
+./start-docker.sh
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f [service-name]
+
+# Rebuild specific service
+docker-compose up --build -d [service-name]
+```
+
+## 📝 Development Notes
+
+### Vite Migration
+This project uses Vite instead of Create React App for:
+- Faster development server startup
+- Hot module replacement
+- Better build performance
+- Modern tooling
+
+### API Proxy
+The frontend uses Vite's proxy feature to forward API calls to the backend, eliminating CORS issues during development.
+
+### Database Persistence
+Docker volumes ensure database data persists between container restarts.
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Ensure PostgreSQL is running
-   - Check database credentials in `application.properties`
-   - Verify database exists: `psql -U postgres -l`
-
-2. **Frontend Build Errors**
-   - Clear node_modules: `rm -rf node_modules && npm install`
-   - Check TypeScript errors: `npx tsc --noEmit`
-
-3. **CORS Issues**
-   - Ensure backend CORS configuration matches frontend URL
-   - Check browser console for CORS errors
-
-4. **Port Conflicts**
-   - Backend: Change `server.port` in `application.properties`
-   - Frontend: Use `PORT=3001 npm start`
-
-For more help, check the logs or create an issue in the repository.
+This project is licensed under the MIT License.

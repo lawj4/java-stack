@@ -19,7 +19,10 @@ const TodoList: React.FC<TodoListProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
 
-  const filteredTodos = todos.filter(todo => {
+  // Defensive: ensure todos is always an array
+  const safeTodos = Array.isArray(todos) ? todos : [];
+
+  const filteredTodos = safeTodos.filter(todo => {
     switch (filter) {
       case 'active':
         return !todo.completed;
@@ -30,8 +33,8 @@ const TodoList: React.FC<TodoListProps> = ({
     }
   });
 
-  const activeCount = todos.filter(todo => !todo.completed).length;
-  const completedCount = todos.filter(todo => todo.completed).length;
+  const activeCount = safeTodos.filter(todo => !todo.completed).length;
+  const completedCount = safeTodos.filter(todo => todo.completed).length;
 
   if (isLoading) {
     return (
@@ -66,7 +69,7 @@ const TodoList: React.FC<TodoListProps> = ({
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          All ({todos.length})
+          All ({safeTodos.length})
         </button>
         <button
           onClick={() => setFilter('active')}

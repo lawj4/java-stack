@@ -23,10 +23,16 @@ const Home = () => {
       setLoading(true);
       const data = await todoService.getAllTodos();
       console.log('Todos loaded successfully:', data);
-      setTodos(data);
+      console.log('Data type:', typeof data);
+      console.log('Is array:', Array.isArray(data));
+      setTodos(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
       console.error('Error loading todos:', err);
+      console.error('Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined
+      });
       setError('Failed to load todos. Please try again.');
     } finally {
       setLoading(false);

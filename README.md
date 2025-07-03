@@ -49,7 +49,7 @@ cd java-stack
 docker-compose up -d
 
 # Access the application:
-# Frontend: http://localhost:3001
+# Frontend: http://localhost:3000
 # Backend API: http://localhost:8080
 # Database: localhost:5432
 ```

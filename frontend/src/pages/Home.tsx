@@ -1,160 +1,62 @@
-import { useState, useEffect } from 'react';
-import TodoForm from '../components/TodoForm';
-import TodoList from '../components/TodoList';
-import { Todo, TodoFormData } from '../types/Todo';
-import todoService from '../services/todoService';
+import React from 'react';
 
 const Home = () => {
-  console.log('Home component rendering...');
-  
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-
-  useEffect(() => {
-    console.log('Home component mounted, loading todos...');
-    loadTodos();
-  }, []);
-
-  const loadTodos = async () => {
-    try {
-      console.log('Starting to load todos...');
-      setLoading(true);
-      const data = await todoService.getAllTodos();
-      console.log('Todos loaded successfully:', data);
-      console.log('Data type:', typeof data);
-      console.log('Is array:', Array.isArray(data));
-      setTodos(Array.isArray(data) ? data : []);
-      setError(null);
-    } catch (err) {
-      console.error('Error loading todos:', err);
-      console.error('Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined
-      });
-      setError('Failed to load todos. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddTodo = async (todoData: TodoFormData) => {
-    try {
-      const newTodo = await todoService.createTodo({
-        ...todoData,
-        completed: false
-      });
-      setTodos(prev => [newTodo, ...prev]);
-      setError(null);
-    } catch (err) {
-      setError('Failed to add todo. Please try again.');
-      console.error('Error adding todo:', err);
-    }
-  };
-
-  const handleToggleTodo = async (id: number) => {
-    try {
-      const updatedTodo = await todoService.toggleTodoStatus(id);
-      setTodos(prev => prev.map(todo => 
-        todo.id === id ? updatedTodo : todo
-      ));
-      setError(null);
-    } catch (err) {
-      setError('Failed to update todo. Please try again.');
-      console.error('Error toggling todo:', err);
-    }
-  };
-
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      await todoService.deleteTodo(id);
-      setTodos(prev => prev.filter(todo => todo.id !== id));
-      setError(null);
-    } catch (err) {
-      setError('Failed to delete todo. Please try again.');
-      console.error('Error deleting todo:', err);
-    }
-  };
-
-  const handleEditTodo = (todo: Todo) => {
-    setEditingTodo(todo);
-  };
-
-  const handleUpdateTodo = async (todoData: TodoFormData) => {
-    if (!editingTodo?.id) return;
-    
-    try {
-      const updatedTodo = await todoService.updateTodo(editingTodo.id, {
-        ...editingTodo,
-        ...todoData
-      });
-      setTodos(prev => prev.map(todo => 
-        todo.id === editingTodo.id ? updatedTodo : todo
-      ));
-      setEditingTodo(null);
-      setError(null);
-    } catch (err) {
-      setError('Failed to update todo. Please try again.');
-      console.error('Error updating todo:', err);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingTodo(null);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Todo List App
+            Welcome to My Portfolio
           </h1>
           <p className="text-gray-600">
-            Manage your tasks with ease
+            Full-stack developer showcasing modern web applications
           </p>
         </header>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-            {error}
-            <button
-              onClick={() => setError(null)}
-              className="float-right text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            About This Project
+          </h2>
+          
+          <div className="prose max-w-none">
+            <p className="text-gray-700 mb-4">
+              This is a full-stack web application built with modern technologies. 
+              It demonstrates various aspects of web development including frontend frameworks, 
+              backend APIs, database integration, and interactive visualizations.
+            </p>
+            
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Projects</h3>
+            <ul className="list-disc list-inside text-gray-700 mb-4">
+              <li><strong>Project 1:</strong> Interactive D3.js Graph Visualization - Create and manipulate nodes and edges with drag-and-drop functionality</li>
+              <li><strong>Project 2:</strong> Todo List Application - Full CRUD operations with Spring Boot backend and PostgreSQL database</li>
+            </ul>
+            
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Technologies Used</h3>
+            <ul className="list-disc list-inside text-gray-700 mb-4">
+              <li><strong>Frontend:</strong> React, TypeScript, Vite, Tailwind CSS, D3.js</li>
+              <li><strong>Backend:</strong> Spring Boot, Java, Maven, JPA</li>
+              <li><strong>Database:</strong> PostgreSQL</li>
+              <li><strong>Deployment:</strong> Docker, Docker Compose</li>
+            </ul>
+            
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Features</h3>
+            <ul className="list-disc list-inside text-gray-700 mb-4">
+              <li>Responsive design with modern UI/UX</li>
+              <li>Real-time data visualization</li>
+              <li>RESTful API with full CRUD operations</li>
+              <li>Database persistence with PostgreSQL</li>
+              <li>Containerized deployment with Docker</li>
+              <li>Type-safe development with TypeScript</li>
+            </ul>
+            
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Getting Started</h3>
+            <p className="text-gray-700">
+              Navigate through the projects using the menu above. Each project showcases different 
+              aspects of modern web development, from interactive visualizations to full-stack applications 
+              with database integration.
+            </p>
           </div>
-        )}
-
-        {editingTodo ? (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Edit Todo
-            </h2>
-            <TodoForm
-              onSubmit={handleUpdateTodo}
-              initialData={editingTodo}
-            />
-            <button
-              onClick={handleCancelEdit}
-              className="mt-4 text-gray-600 hover:text-gray-800 text-sm font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <TodoForm onSubmit={handleAddTodo} />
-        )}
-
-        <TodoList
-          todos={todos}
-          onToggle={handleToggleTodo}
-          onDelete={handleDeleteTodo}
-          onEdit={handleEditTodo}
-          isLoading={loading}
-        />
+        </div>
       </div>
     </div>
   );

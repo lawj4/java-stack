@@ -31,7 +31,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, isLoading = false, initia
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Add New Todo</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">New Todo</h2>
       <div className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
